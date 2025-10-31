@@ -30,9 +30,10 @@ func main() {
 	r.POST("/auth/login", func(c *gin.Context) { handlers.LoginHandler(c, db) })
 
 	// Public endpoints
-	r.GET("/routes", func(c *gin.Context) { handlers.GetRoutesHandler(c, db) })
-	r.GET("/routes/:id", func(c *gin.Context) { handlers.GetRouteByIDHandler(c, db) })
-	r.GET("/health", func(c *gin.Context) { c.JSON(200, gin.H{"status": "ok"}) })
+	public := r.Group("/public")
+	public.GET("/routes", func(c *gin.Context) { handlers.PublicGetRoutesHandler(c, db) })
+	public.GET("/routes/:id", func(c *gin.Context) { handlers.PublicGetRouteByIDHandler(c, db) })
+	public.GET("/health", func(c *gin.Context) { c.JSON(200, gin.H{"status": "ok"}) })
 
 	// Admin (protected)
 	admin := r.Group("/admin")
@@ -49,6 +50,8 @@ func main() {
 	admin.POST("/routes/:id/schedules", func(c *gin.Context) { handlers.AddScheduleHandler(c, db) })
 	admin.PUT("/schedules/:id", func(c *gin.Context) { handlers.UpdateScheduleHandler(c, db) })
 	admin.DELETE("/schedules/:id", func(c *gin.Context) { handlers.DeleteScheduleHandler(c, db) })
+	r.GET("/routes", func(c *gin.Context) { handlers.GetRoutesHandler(c, db) })
+	r.GET("/routes/:id", func(c *gin.Context) { handlers.GetRouteByIDHandler(c, db) })
 
 	log.Println("Server running on :8080")
 	log.Println("click http://localhost:8080/health to check STATUS")
