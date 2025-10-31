@@ -6,6 +6,9 @@ import CreateRoute from "./pages/CreateRoute";
 import AddSchedule from "./pages/AddSchedule"; 
 import AddStops from "./pages/AddStops";
 import UploadCSV from "./pages/UploadCSV";
+import PublicRoutes from "./pages/PublicRoutes";
+import PublicRoutesDetails from "./pages/PublicRoutesDetails";
+import PublicRouteMap from "./pages/PublicRouteMap";
 
 function App() {
   return (
@@ -18,6 +21,9 @@ function App() {
         <Route path="/routes/:routeId/schedules" element={<AddSchedule />} />
         <Route path="/upload-csv" element={<UploadCSV />} />
         <Route path="/routes/:routeId/stops" element={<AddStops />} />
+        <Route path="/public/routes" element={<PublicRoutes />} />
+        <Route path="/public/route/:id" element={<PublicRoutesDetails />} />
+        <Route path="/public/route/:id/map" element={<PublicRouteMap />} />
       </Routes>
     </BrowserRouter>
   );
