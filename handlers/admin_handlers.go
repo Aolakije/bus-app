@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"encoding/csv"
 	"net/http"
 	"strconv"
 
@@ -286,4 +287,46 @@ func DeleteScheduleHandler(c *gin.Context, db *gorm.DB) {
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"status": "deleted"})
+}
+
+func UploadCSVHandler(c *gin.Context, db *gorm.DB) {
+	file, err := c.FormFile("file")
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "file required"})
+		return
+	}
+
+	src, _ := file.Open()
+	defer src.Close()
+	reader := csv.NewReader(src)
+	reader.TrimLeadingSpace = true
+	records, _ := reader.ReadAll()
+
+	for i, row := range records {
+		if i == 0 { // skip header
+			continue
+		}
+		routeName, description := row[0], row[1]
+		stopName, orderIndexStr := row[2], row[3]
+		departureTime, freqStr := row[4], row[5]
+
+		var route models.Route
+		if err := db.Where("name = ?", routeName).First(&route).Error; err != nil {
+			// route not found, create
+			route = models.Route{Name: routeName, Description: description}
+			db.Create(&route)
+		}
+
+		// create stop
+		orderIndex, _ := strconv.Atoi(orderIndexStr)
+		stop := models.Stop{Name: stopName, OrderIndex: orderIndex, RouteID: route.ID}
+		db.Create(&stop)
+
+		// create schedule
+		freq, _ := strconv.Atoi(freqStr)
+		schedule := models.Schedule{RouteID: route.ID, Departure: departureTime, FrequencyMin: freq}
+		db.Create(&schedule)
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "CSV imported successfully"})
 }
