@@ -33,6 +33,8 @@ func main() {
 	public := r.Group("/public")
 	public.GET("/routes", func(c *gin.Context) { handlers.PublicGetRoutesHandler(c, db) })
 	public.GET("/routes/:id", func(c *gin.Context) { handlers.PublicGetRouteByIDHandler(c, db) })
+	public.GET("/next-bus/:id", func(c *gin.Context) { handlers.PublicGetNextBusHandler(c, db) })
+
 	public.GET("/health", func(c *gin.Context) { c.JSON(200, gin.H{"status": "ok"}) })
 
 	// Admin (protected)
